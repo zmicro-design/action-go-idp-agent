@@ -1,0 +1,57 @@
+name: "Zmicro Go IDP Agent"
+description: "github action for go idp agent"
+author: "Zero <GitHub: whatwewant>"
+branding:
+  icon: "cloud-lightning"
+  color: "green"
+inputs:
+  script:
+    required: true
+    description: "the shell script to run"
+  server:
+    required: true
+    description: "the server address of the idp agent"
+  client-id:
+    required: true
+    description: "the client id of the idp agent"
+  client-secret:
+    required: true
+    description: "the client secret of the idp agent"
+
+outputs:
+  success:
+    description: "whether the script is successful"
+    value: ${{ steps.run.outputs.success }}
+
+runs:
+  using: composite
+  steps:
+    - name: Set up Zmicro
+      uses: zmicro-design/action-setup-zmicro@v1
+
+    - name: Install Go IDP Agent
+      shell: bash
+      run: zmicro package install go-idp-agent
+
+    - name: Run Script with Go IDP Agent Client
+      shell: bash
+      id: run
+      run: |
+        SERVER=${{ inputs.server }}
+        CLIENT_ID=${{ inputs.client-id }}
+        CLIENT_SECRET=${{ inputs.client-secret }}
+        SCRIPT="${{ inputs.script }}"
+
+        go-idp-agent client \
+          --server $SERVER \
+          --client-id $CLIENT_ID \
+          --client-secret $CLIENT_SECRET \
+          --script "$SCRIPT"
+        # why we need to use exit_code var instead of $?
+        # because it make sure shell script stderr buffer will be flushed fully
+        exit_code=$?
+        if [ $exit_code -eq 0 ]; then
+          echo "success=true" >> $GITHUB_OUTPUT
+        else
+          echo "success=false" >> $GITHUB_OUTPUT
+        fi

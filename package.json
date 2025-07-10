@@ -1,0 +1,7 @@
+{
+    "name": "action-go-idp-agent",
+    "main": "dist/index.js",
+    "scripts": {
+      "build": "echo ok"
+    }
+  }
