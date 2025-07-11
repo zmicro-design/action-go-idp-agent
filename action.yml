@@ -36,16 +36,17 @@ runs:
     - name: Run Script with Go IDP Agent Client
       shell: bash
       id: run
+      env:
+        SERVER: ${{ inputs.server }}
+        CLIENT_ID: ${{ inputs.client-id }}
+        CLIENT_SECRET: ${{ inputs.client-secret }}
+        SCRIPT: ${{ inputs.script }}
       run: |
-        SERVER=${{ inputs.server }}
-        CLIENT_ID=${{ inputs.client-id }}
-        CLIENT_SECRET=${{ inputs.client-secret }}
-        SCRIPT="${{ inputs.script }}"
-
+        # Use environment variables to safely pass script with any quotes
         go-idp-agent client \
-          --server $SERVER \
-          --client-id $CLIENT_ID \
-          --client-secret $CLIENT_SECRET \
+          --server "$SERVER" \
+          --client-id "$CLIENT_ID" \
+          --client-secret "$CLIENT_SECRET" \
           --script "$SCRIPT"
         # why we need to use exit_code var instead of $?
         # because it make sure shell script stderr buffer will be flushed fully
